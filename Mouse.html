@@ -1,0 +1,2076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mouse Practice Training</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a2e;
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1a1a4e, #2d2d7e);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(90deg, #00d4ff, #7b2ff7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #8888aa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Navigation */
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 12px 24px;
+            border: 2px solid #3a3a6e;
+            background: rgba(255,255,255,0.05);
+            color: #ccc;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-btn:hover {
+            border-color: #7b2ff7;
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(123,47,247,0.3);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, #7b2ff7, #00d4ff);
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 5px 25px rgba(123,47,247,0.4);
+        }
+
+        .nav-btn .icon {
+            margin-right: 8px;
+        }
+
+        /* Game Area */
+        .game-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .game-info {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .game-info h2 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            color: #e0e0ff;
+        }
+
+        .game-info p {
+            color: #8888aa;
+            font-size: 0.9rem;
+        }
+
+        .game-area {
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(180deg, #12123a, #1a1a50);
+            border: 2px solid #2a2a5e;
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+            cursor: crosshair;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+
+        .game-area .grid-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+        }
+
+        /* Control Bar */
+        .control-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7b2ff7, #5b1fd7);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(123,47,247,0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(123,47,247,0.6);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff4757, #c0392b);
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255,71,87,0.4);
+        }
+
+        .difficulty-selector {
+            display: flex;
+            gap: 5px;
+            background: rgba(255,255,255,0.05);
+            padding: 4px;
+            border-radius: 10px;
+        }
+
+        .diff-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: #888;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .diff-btn.active {
+            background: rgba(123,47,247,0.3);
+            color: #fff;
+        }
+
+        .diff-btn:hover {
+            color: #fff;
+        }
+
+        /* Targets */
+        .target {
+            position: absolute;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .target:active {
+            transform: scale(0.9);
+        }
+
+        .target-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .target-circle .ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid;
+        }
+
+        .target-circle .ring:nth-child(1) {
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-color: #ff4757;
+            background: rgba(255,71,87,0.2);
+        }
+
+        .target-circle .ring:nth-child(2) {
+            top: 20%; left: 20%; right: 20%; bottom: 20%;
+            border-color: #fff;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .target-circle .ring:nth-child(3) {
+            top: 40%; left: 40%; right: 40%; bottom: 40%;
+            border-color: #ff4757;
+            background: #ff4757;
+        }
+
+        /* Click Effect */
+        .click-effect {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid rgba(0,212,255,0.8);
+            pointer-events: none;
+            animation: clickRipple 0.5s ease-out forwards;
+        }
+
+        @keyframes clickRipple {
+            0% { transform: translate(-50%,-50%) scale(0.5); opacity: 1; }
+            100% { transform: translate(-50%,-50%) scale(2.5); opacity: 0; }
+        }
+
+        /* Hit marker */
+        .hit-marker {
+            position: absolute;
+            pointer-events: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            animation: hitFloat 0.8s ease-out forwards;
+        }
+
+        @keyframes hitFloat {
+            0% { transform: translate(-50%,-50%) scale(0.5); opacity: 1; }
+            100% { transform: translate(-50%, -100%) scale(1); opacity: 0; }
+        }
+
+        .hit-marker.hit { color: #2ecc71; }
+        .hit-marker.miss { color: #ff4757; }
+
+        /* Tracking Target */
+        .tracking-target {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ff4757, #c0392b);
+            box-shadow: 0 0 20px rgba(255,71,87,0.5);
+            cursor: pointer;
+            transition: none;
+        }
+
+        .tracking-cursor {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #00d4ff;
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px rgba(0,212,255,0.5);
+        }
+
+        .tracking-cursor::before,
+        .tracking-cursor::after {
+            content: '';
+            position: absolute;
+            background: #00d4ff;
+        }
+
+        .tracking-cursor::before {
+            width: 2px;
+            height: 30px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .tracking-cursor::after {
+            width: 30px;
+            height: 2px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Drag Elements */
+        .drag-item {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            user-select: none;
+            transition: box-shadow 0.3s;
+            z-index: 10;
+        }
+
+        .drag-item:active {
+            cursor: grabbing;
+        }
+
+        .drag-item.dragging {
+            box-shadow: 0 8px 30px rgba(123,47,247,0.5);
+            z-index: 20;
+        }
+
+        .drop-zone {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border: 3px dashed #3a3a6e;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        .drop-zone.hover {
+            border-color: #7b2ff7;
+            background: rgba(123,47,247,0.1);
+            box-shadow: 0 0 20px rgba(123,47,247,0.2);
+        }
+
+        .drop-zone.filled {
+            border-color: #2ecc71;
+            background: rgba(46,204,113,0.1);
+        }
+
+        /* Speed Test Path */
+        .path-dot {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3a3a6e;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .path-dot.active {
+            background: #7b2ff7;
+            box-shadow: 0 0 15px rgba(123,47,247,0.6);
+            animation: dotPulse 0.5s ease infinite alternate;
+        }
+
+        .path-dot.completed {
+            background: #2ecc71;
+            box-shadow: 0 0 10px rgba(46,204,113,0.4);
+        }
+
+        .path-dot .dot-number {
+            font-size: 0.6rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        @keyframes dotPulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.3); }
+        }
+
+        /* Path Line */
+        .path-line {
+            position: absolute;
+            height: 3px;
+            background: #2a2a5e;
+            transform-origin: left center;
+            pointer-events: none;
+        }
+
+        .path-line.completed {
+            background: linear-gradient(90deg, #2ecc71, #27ae60);
+        }
+
+        /* Scroll Practice */
+        .scroll-container {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            padding: 20px;
+            scroll-behavior: smooth;
+        }
+
+        .scroll-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scroll-container::-webkit-scrollbar-track {
+            background: #1a1a50;
+        }
+
+        .scroll-container::-webkit-scrollbar-thumb {
+            background: #7b2ff7;
+            border-radius: 4px;
+        }
+
+        .scroll-item {
+            padding: 15px 20px;
+            margin: 10px 0;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid #2a2a5e;
+            border-radius: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .scroll-item:hover {
+            background: rgba(123,47,247,0.1);
+            border-color: #7b2ff7;
+        }
+
+        .scroll-item.target-item {
+            border-color: #ff4757;
+            animation: targetGlow 1s ease infinite alternate;
+        }
+
+        @keyframes targetGlow {
+            from { box-shadow: 0 0 5px rgba(255,71,87,0.3); }
+            to { box-shadow: 0 0 20px rgba(255,71,87,0.6); }
+        }
+
+        .scroll-item.found {
+            border-color: #2ecc71;
+            background: rgba(46,204,113,0.1);
+            animation: none;
+        }
+
+        /* Double Click targets */
+        .dbl-target {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+        }
+
+        .dbl-target:hover {
+            transform: scale(1.1);
+        }
+
+        .dbl-target.single-clicked {
+            animation: singlePulse 0.3s ease;
+        }
+
+        @keyframes singlePulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* Right Click Context Menu */
+        .context-target {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            cursor: context-menu;
+            transition: all 0.3s;
+            font-size: 0.7rem;
+        }
+
+        .context-target .emoji {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .custom-context-menu {
+            position: absolute;
+            background: #1a1a50;
+            border: 1px solid #3a3a6e;
+            border-radius: 10px;
+            padding: 5px 0;
+            min-width: 160px;
+            z-index: 50;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: none;
+        }
+
+        .context-menu-item {
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .context-menu-item:hover {
+            background: rgba(123,47,247,0.2);
+        }
+
+        .context-menu-item.correct {
+            color: #2ecc71;
+        }
+
+        /* Precision Drawing */
+        .drawing-canvas {
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+        }
+
+        /* Results Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: linear-gradient(135deg, #1a1a4e, #2d2d7e);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border: 1px solid #3a3a6e;
+        }
+
+        .modal h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00d4ff, #7b2ff7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .modal .result-grade {
+            font-size: 4rem;
+            margin: 15px 0;
+        }
+
+        .modal .result-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .modal .result-stat {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        .modal .result-stat .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        .modal .result-stat .label {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        /* Timer Bar */
+        .timer-bar {
+            width: 100%;
+            height: 4px;
+            background: #2a2a5e;
+            border-radius: 2px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .timer-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2ecc71, #00d4ff, #7b2ff7, #ff4757);
+            border-radius: 2px;
+            transition: width 0.1s linear;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            background: #1a1a50;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            pointer-events: none;
+            z-index: 30;
+            border: 1px solid #3a3a6e;
+            white-space: nowrap;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.2rem; }
+            .stats-bar { gap: 15px; }
+            .stat-value { font-size: 1rem; }
+            .game-area { height: 400px; }
+            .nav-btn { padding: 8px 14px; font-size: 0.8rem; }
+        }
+
+        /* Moving target trail */
+        .trail {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(123,47,247,0.3);
+            pointer-events: none;
+            animation: trailFade 0.5s ease-out forwards;
+        }
+
+        @keyframes trailFade {
+            to { opacity: 0; transform: scale(0); }
+        }
+
+        /* Progress indicators */
+        .progress-container {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .progress-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #2a2a5e;
+            transition: all 0.3s;
+        }
+
+        .progress-dot.completed {
+            background: #2ecc71;
+        }
+
+        .progress-dot.current {
+            background: #7b2ff7;
+            box-shadow: 0 0 10px rgba(123,47,247,0.5);
+        }
+
+        .countdown-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            font-weight: bold;
+            background: rgba(10,10,46,0.8);
+            z-index: 40;
+            color: #00d4ff;
+            border-radius: 16px;
+        }
+
+        .countdown-overlay.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <h1>🎯 Mouse Training Pro</h1>
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-value" id="totalScore">0</div>
+                <div class="stat-label">Score</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="accuracy">0%</div>
+                <div class="stat-label">Accuracy</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="streak">0</div>
+                <div class="stat-label">Streak</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="bestStreak">0</div>
+                <div class="stat-label">Best Streak</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-container">
+        <button class="nav-btn active" data-mode="click" onclick="switchMode('click')">
+            <span class="icon">🎯</span>Click Practice
+        </button>
+        <button class="nav-btn" data-mode="tracking" onclick="switchMode('tracking')">
+            <span class="icon">🔄</span>Tracking
+        </button>
+        <button class="nav-btn" data-mode="path" onclick="switchMode('path')">
+            <span class="icon">📍</span>Path Follow
+        </button>
+        <button class="nav-btn" data-mode="drag" onclick="switchMode('drag')">
+            <span class="icon">✋</span>Drag & Drop
+        </button>
+        <button class="nav-btn" data-mode="doubleclick" onclick="switchMode('doubleclick')">
+            <span class="icon">👆</span>Double Click
+        </button>
+        <button class="nav-btn" data-mode="rightclick" onclick="switchMode('rightclick')">
+            <span class="icon">🖱️</span>Right Click
+        </button>
+        <button class="nav-btn" data-mode="speed" onclick="switchMode('speed')">
+            <span class="icon">⚡</span>Speed Test
+        </button>
+        <button class="nav-btn" data-mode="precision" onclick="switchMode('precision')">
+            <span class="icon">✏️</span>Precision
+        </button>
+    </div>
+
+    <!-- Game Area -->
+    <div class="game-container">
+        <div class="game-info">
+            <h2 id="gameTitle">Click Practice</h2>
+            <p id="gameDescription">Click the targets as fast as you can!</p>
+        </div>
+
+        <div class="game-area" id="gameArea">
+            <div class="grid-overlay"></div>
+            <div class="countdown-overlay hidden" id="countdown"></div>
+        </div>
+
+        <div class="timer-bar">
+            <div class="timer-fill" id="timerFill" style="width: 100%"></div>
+        </div>
+
+        <div class="control-bar">
+            <div class="difficulty-selector">
+                <button class="diff-btn active" data-diff="easy" onclick="setDifficulty('easy')">Easy</button>
+                <button class="diff-btn" data-diff="medium" onclick="setDifficulty('medium')">Medium</button>
+                <button class="diff-btn" data-diff="hard" onclick="setDifficulty('hard')">Hard</button>
+                <button class="diff-btn" data-diff="insane" onclick="setDifficulty('insane')">Insane</button>
+            </div>
+            <button class="btn btn-primary" id="startBtn" onclick="startGame()">▶ Start</button>
+            <button class="btn btn-danger" id="resetBtn" onclick="resetGame()">↻ Reset</button>
+        </div>
+
+        <div class="progress-container" id="progressDots"></div>
+    </div>
+
+    <!-- Results Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h2>Round Complete!</h2>
+            <div class="result-grade" id="resultGrade">🏆</div>
+            <div class="result-stats">
+                <div class="result-stat">
+                    <div class="value" id="resultScore">0</div>
+                    <div class="label">Score</div>
+                </div>
+                <div class="result-stat">
+                    <div class="value" id="resultAccuracy">0%</div>
+                    <div class="label">Accuracy</div>
+                </div>
+                <div class="result-stat">
+                    <div class="value" id="resultTime">0s</div>
+                    <div class="label">Time</div>
+                </div>
+                <div class="result-stat">
+                    <div class="value" id="resultAvgReaction">0ms</div>
+                    <div class="label">Avg Reaction</div>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="closeModal()">Continue</button>
+        </div>
+    </div>
+
+    <!-- Custom Context Menu -->
+    <div class="custom-context-menu" id="contextMenu">
+        <div class="context-menu-item" onclick="contextAction('delete')">🗑️ Delete</div>
+        <div class="context-menu-item" onclick="contextAction('color')">🎨 Change Color</div>
+        <div class="context-menu-item" onclick="contextAction('copy')">📋 Copy</div>
+        <div class="context-menu-item" onclick="contextAction('resize')">📐 Resize</div>
+    </div>
+
+    <script>
+        // ==================== GAME STATE ====================
+        const state = {
+            mode: 'click',
+            difficulty: 'easy',
+            running: false,
+            score: 0,
+            totalClicks: 0,
+            hits: 0,
+            misses: 0,
+            streak: 0,
+            bestStreak: 0,
+            timeLimit: 30,
+            timeLeft: 30,
+            timerInterval: null,
+            targets: [],
+            reactionTimes: [],
+            lastTargetTime: 0,
+            roundTargets: 20,
+            currentTarget: 0,
+
+            // Tracking
+            trackingScore: 0,
+            trackingInterval: null,
+            trackingTarget: null,
+            isOnTarget: false,
+
+            // Path
+            pathDots: [],
+            currentPathDot: 0,
+
+            // Drag
+            dragItems: [],
+            dragCompleted: 0,
+
+            // Double Click
+            dblClickData: {},
+
+            // Right Click
+            rightClickTarget: null,
+            correctAction: '',
+
+            // Speed
+            speedTargets: 0,
+
+            // Precision
+            precisionCanvas: null,
+            precisionCtx: null,
+            isDrawing: false,
+            precisionScore: 0,
+        };
+
+        const difficultySettings = {
+            easy:   { targetSize: 60, speed: 2, timeLimit: 30, targets: 15, trackSpeed: 1.5 },
+            medium: { targetSize: 45, speed: 3, timeLimit: 25, targets: 20, trackSpeed: 2.5 },
+            hard:   { targetSize: 30, speed: 5, timeLimit: 20, targets: 25, trackSpeed: 4 },
+            insane: { targetSize: 20, speed: 7, timeLimit: 15, targets: 30, trackSpeed: 6 },
+        };
+
+        const gameArea = document.getElementById('gameArea');
+        const timerFill = document.getElementById('timerFill');
+        const contextMenu = document.getElementById('contextMenu');
+
+        // ==================== CORE FUNCTIONS ====================
+
+        function switchMode(mode) {
+            if (state.running) resetGame();
+            state.mode = mode;
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+
+            const titles = {
+                click: ['Click Practice', 'Click the targets as fast and accurately as you can!'],
+                tracking: ['Tracking', 'Keep your cursor on the moving target!'],
+                path: ['Path Follow', 'Click the numbered dots in order as fast as possible!'],
+                drag: ['Drag & Drop', 'Drag each item to its matching drop zone!'],
+                doubleclick: ['Double Click', 'Double-click the targets before they disappear!'],
+                rightclick: ['Right Click', 'Right-click targets and choose the correct action!'],
+                speed: ['Speed Test', 'Click as many targets as possible before time runs out!'],
+                precision: ['Precision Drawing', 'Trace the path as precisely as you can!'],
+            };
+
+            document.getElementById('gameTitle').textContent = titles[mode][0];
+            document.getElementById('gameDescription').textContent = titles[mode][1];
+
+            clearGameArea();
+        }
+
+        function setDifficulty(diff) {
+            state.difficulty = diff;
+            document.querySelectorAll('.diff-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.diff === diff);
+            });
+            if (state.running) {
+                resetGame();
+            }
+        }
+
+        function clearGameArea() {
+            const grid = gameArea.querySelector('.grid-overlay');
+            const countdown = gameArea.querySelector('.countdown-overlay');
+            gameArea.innerHTML = '';
+            gameArea.appendChild(grid);
+            gameArea.appendChild(countdown);
+            gameArea.style.cursor = 'crosshair';
+
+            gameArea.onmousedown = null;
+            gameArea.onmousemove = null;
+            gameArea.onmouseup = null;
+            gameArea.oncontextmenu = null;
+            gameArea.ondblclick = null;
+        }
+
+        async function startGame() {
+            if (state.running) return;
+
+            resetStats();
+            clearGameArea();
+
+            await showCountdown();
+
+            state.running = true;
+            const settings = difficultySettings[state.difficulty];
+            state.timeLimit = settings.timeLimit;
+            state.timeLeft = settings.timeLimit;
+            state.roundTargets = settings.targets;
+
+            switch (state.mode) {
+                case 'click': startClickPractice(); break;
+                case 'tracking': startTracking(); break;
+                case 'path': startPathFollow(); break;
+                case 'drag': startDragDrop(); break;
+                case 'doubleclick': startDoubleClick(); break;
+                case 'rightclick': startRightClick(); break;
+                case 'speed': startSpeedTest(); break;
+                case 'precision': startPrecision(); break;
+            }
+
+            startTimer();
+        }
+
+        function resetGame() {
+            state.running = false;
+            clearInterval(state.timerInterval);
+            clearInterval(state.trackingInterval);
+            cancelAnimationFrame(state.trackingAnimFrame);
+            clearGameArea();
+            timerFill.style.width = '100%';
+            document.getElementById('progressDots').innerHTML = '';
+        }
+
+        function resetStats() {
+            state.score = 0;
+            state.totalClicks = 0;
+            state.hits = 0;
+            state.misses = 0;
+            state.streak = 0;
+            state.reactionTimes = [];
+            state.currentTarget = 0;
+            state.trackingScore = 0;
+            state.dragCompleted = 0;
+            state.speedTargets = 0;
+            state.precisionScore = 0;
+            updateUI();
+        }
+
+        function startTimer() {
+            clearInterval(state.timerInterval);
+            state.timerInterval = setInterval(() => {
+                state.timeLeft -= 0.1;
+                const pct = (state.timeLeft / state.timeLimit) * 100;
+                timerFill.style.width = Math.max(0, pct) + '%';
+
+                if (state.timeLeft <= 0) {
+                    endGame();
+                }
+            }, 100);
+        }
+
+        function endGame() {
+            state.running = false;
+            clearInterval(state.timerInterval);
+            clearInterval(state.trackingInterval);
+            cancelAnimationFrame(state.trackingAnimFrame);
+
+            showResults();
+        }
+
+        function showResults() {
+            const accuracy = state.totalClicks > 0
+                ? Math.round((state.hits / state.totalClicks) * 100) : 0;
+            const avgReaction = state.reactionTimes.length > 0
+                ? Math.round(state.reactionTimes.reduce((a,b) => a+b, 0) / state.reactionTimes.length) : 0;
+
+            let grade = '🏆';
+            if (accuracy >= 95 && state.score > 500) grade = '🏆';
+            else if (accuracy >= 80) grade = '⭐';
+            else if (accuracy >= 60) grade = '👍';
+            else if (accuracy >= 40) grade = '💪';
+            else grade = '🎯';
+
+            if (state.mode === 'tracking') {
+                document.getElementById('resultScore').textContent = state.trackingScore;
+                document.getElementById('resultAccuracy').textContent =
+                    Math.round((state.trackingScore / (state.timeLimit * 10)) * 100) + '%';
+            } else {
+                document.getElementById('resultScore').textContent = state.score;
+                document.getElementById('resultAccuracy').textContent = accuracy + '%';
+            }
+
+            document.getElementById('resultGrade').textContent = grade;
+            document.getElementById('resultTime').textContent =
+                (state.timeLimit - Math.max(0, state.timeLeft)).toFixed(1) + 's';
+            document.getElementById('resultAvgReaction').textContent =
+                avgReaction > 0 ? avgReaction + 'ms' : 'N/A';
+
+            document.getElementById('modalOverlay').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('show');
+        }
+
+        function updateUI() {
+            document.getElementById('totalScore').textContent = state.score;
+            const acc = state.totalClicks > 0
+                ? Math.round((state.hits / state.totalClicks) * 100) : 0;
+            document.getElementById('accuracy').textContent = acc + '%';
+            document.getElementById('streak').textContent = state.streak;
+            document.getElementById('bestStreak').textContent = state.bestStreak;
+        }
+
+        function showCountdown() {
+            return new Promise(resolve => {
+                const overlay = document.getElementById('countdown');
+                overlay.classList.remove('hidden');
+                let count = 3;
+                overlay.textContent = count;
+
+                const interval = setInterval(() => {
+                    count--;
+                    if (count <= 0) {
+                        clearInterval(interval);
+                        overlay.classList.add('hidden');
+                        resolve();
+                    } else {
+                        overlay.textContent = count;
+                    }
+                }, 700);
+            });
+        }
+
+        function randomPos(size) {
+            const rect = gameArea.getBoundingClientRect();
+            const padding = 20;
+            return {
+                x: padding + Math.random() * (rect.width - size - padding * 2),
+                y: padding + Math.random() * (rect.height - size - padding * 2),
+            };
+        }
+
+        function addClickEffect(x, y, isHit) {
+            const effect = document.createElement('div');
+            effect.className = 'click-effect';
+            effect.style.left = x + 'px';
+            effect.style.top = y + 'px';
+            effect.style.borderColor = isHit ? '#2ecc71' : '#ff4757';
+            gameArea.appendChild(effect);
+            setTimeout(() => effect.remove(), 500);
+        }
+
+        function addHitMarker(x, y, text, isHit) {
+            const marker = document.createElement('div');
+            marker.className = `hit-marker ${isHit ? 'hit' : 'miss'}`;
+            marker.textContent = text;
+            marker.style.left = x + 'px';
+            marker.style.top = y + 'px';
+            gameArea.appendChild(marker);
+            setTimeout(() => marker.remove(), 800);
+        }
+
+        function updateProgress(current, total) {
+            const container = document.getElementById('progressDots');
+            container.innerHTML = '';
+            for (let i = 0; i < total; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'progress-dot';
+                if (i < current) dot.classList.add('completed');
+                else if (i === current) dot.classList.add('current');
+                container.appendChild(dot);
+            }
+        }
+
+        // ==================== CLICK PRACTICE ====================
+
+        function startClickPractice() {
+            state.currentTarget = 0;
+            gameArea.addEventListener('mousedown', onClickMiss);
+            spawnClickTarget();
+            updateProgress(0, state.roundTargets);
+        }
+
+        function onClickMiss(e) {
+            if (e.target === gameArea || e.target.classList.contains('grid-overlay')) {
+                state.totalClicks++;
+                state.misses++;
+                state.streak = 0;
+                const rect = gameArea.getBoundingClientRect();
+                addClickEffect(e.clientX - rect.left, e.clientY - rect.top, false);
+                addHitMarker(e.clientX - rect.left, e.clientY - rect.top, 'MISS', false);
+                updateUI();
+            }
+        }
+
+        function spawnClickTarget() {
+            if (!state.running || state.currentTarget >= state.roundTargets) {
+                if (state.running) endGame();
+                return;
+            }
+
+            const settings = difficultySettings[state.difficulty];
+            const size = settings.targetSize;
+            const pos = randomPos(size);
+
+            const target = document.createElement('div');
+            target.className = 'target';
+            target.style.width = size + 'px';
+            target.style.height = size + 'px';
+            target.style.left = pos.x + 'px';
+            target.style.top = pos.y + 'px';
+
+            target.innerHTML = `
+                <div class="target-circle">
+                    <div class="ring"></div>
+                    <div class="ring"></div>
+                    <div class="ring"></div>
+                </div>
+            `;
+
+            target.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+                onTargetHit(target, e);
+            });
+
+            gameArea.appendChild(target);
+            state.lastTargetTime = Date.now();
+        }
+
+        function onTargetHit(target, e) {
+            if (!state.running) return;
+
+            const reaction = Date.now() - state.lastTargetTime;
+            state.reactionTimes.push(reaction);
+
+            state.totalClicks++;
+            state.hits++;
+            state.streak++;
+            if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+
+            // Score based on reaction time
+            let points = Math.max(10, 100 - Math.floor(reaction / 10));
+            points += state.streak * 5;
+            state.score += points;
+
+            const rect = gameArea.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            addClickEffect(x, y, true);
+            addHitMarker(x, y, '+' + points, true);
+
+            target.remove();
+            state.currentTarget++;
+            updateProgress(state.currentTarget, state.roundTargets);
+            updateUI();
+
+            setTimeout(spawnClickTarget, 200);
+        }
+
+        // ==================== TRACKING ====================
+
+        function startTracking() {
+            const settings = difficultySettings[state.difficulty];
+            const targetEl = document.createElement('div');
+            targetEl.className = 'tracking-target';
+            targetEl.id = 'trackTarget';
+
+            const rect = gameArea.getBoundingClientRect();
+            let tx = rect.width / 2 - 25;
+            let ty = rect.height / 2 - 25;
+            let dx = settings.trackSpeed * (Math.random() > 0.5 ? 1 : -1);
+            let dy = settings.trackSpeed * (Math.random() > 0.5 ? 1 : -1);
+
+            targetEl.style.left = tx + 'px';
+            targetEl.style.top = ty + 'px';
+            gameArea.appendChild(targetEl);
+
+            const cursor = document.createElement('div');
+            cursor.className = 'tracking-cursor';
+            cursor.id = 'trackCursor';
+            gameArea.appendChild(cursor);
+            gameArea.style.cursor = 'none';
+
+            let mouseX = rect.width / 2;
+            let mouseY = rect.height / 2;
+
+            gameArea.onmousemove = (e) => {
+                const r = gameArea.getBoundingClientRect();
+                mouseX = e.clientX - r.left;
+                mouseY = e.clientY - r.top;
+                cursor.style.left = mouseX + 'px';
+                cursor.style.top = mouseY + 'px';
+            };
+
+            const scoreEl = document.createElement('div');
+            scoreEl.style.cssText = 'position:absolute;top:15px;left:50%;transform:translateX(-50%);font-size:1.4rem;font-weight:bold;color:#00d4ff;z-index:10;';
+            scoreEl.id = 'trackScore';
+            scoreEl.textContent = 'Score: 0';
+            gameArea.appendChild(scoreEl);
+
+            const statusEl = document.createElement('div');
+            statusEl.style.cssText = 'position:absolute;top:45px;left:50%;transform:translateX(-50%);font-size:0.9rem;z-index:10;';
+            statusEl.id = 'trackStatus';
+            gameArea.appendChild(statusEl);
+
+            function animateTracking() {
+                if (!state.running) return;
+
+                const r = gameArea.getBoundingClientRect();
+                tx += dx;
+                ty += dy;
+
+                if (tx <= 0 || tx >= r.width - 50) dx *= -1;
+                if (ty <= 0 || ty >= r.height - 50) dy *= -1;
+
+                // Random direction changes
+                if (Math.random() < 0.02) dx *= -1;
+                if (Math.random() < 0.02) dy *= -1;
+                if (Math.random() < 0.01) {
+                    dx = settings.trackSpeed * (Math.random() * 2 - 1);
+                    dy = settings.trackSpeed * (Math.random() * 2 - 1);
+                }
+
+                targetEl.style.left = tx + 'px';
+                targetEl.style.top = ty + 'px';
+
+                // Check distance
+                const centerX = tx + 25;
+                const centerY = ty + 25;
+                const dist = Math.sqrt((mouseX - centerX) ** 2 + (mouseY - centerY) ** 2);
+
+                if (dist < 35) {
+                    state.trackingScore++;
+                    targetEl.style.boxShadow = '0 0 30px rgba(46,204,113,0.7)';
+                    statusEl.textContent = '✅ On Target!';
+                    statusEl.style.color = '#2ecc71';
+
+                    // Add trail
+                    const trail = document.createElement('div');
+                    trail.className = 'trail';
+                    trail.style.left = (centerX - 4) + 'px';
+                    trail.style.top = (centerY - 4) + 'px';
+                    trail.style.background = 'rgba(46,204,113,0.3)';
+                    gameArea.appendChild(trail);
+                    setTimeout(() => trail.remove(), 500);
+                } else {
+                    targetEl.style.boxShadow = '0 0 20px rgba(255,71,87,0.5)';
+                    statusEl.textContent = '❌ Off Target';
+                    statusEl.style.color = '#ff4757';
+                }
+
+                scoreEl.textContent = 'Score: ' + state.trackingScore;
+                state.score = state.trackingScore;
+                updateUI();
+
+                state.trackingAnimFrame = requestAnimationFrame(animateTracking);
+            }
+
+            animateTracking();
+        }
+
+        // ==================== PATH FOLLOW ====================
+
+        function startPathFollow() {
+            const settings = difficultySettings[state.difficulty];
+            const numDots = Math.min(settings.targets, 15);
+            state.pathDots = [];
+            state.currentPathDot = 0;
+
+            const rect = gameArea.getBoundingClientRect();
+
+            // Generate dots in a reasonable path
+            for (let i = 0; i < numDots; i++) {
+                const angle = (i / numDots) * Math.PI * 2;
+                const radiusX = (rect.width / 2 - 60) * (0.5 + Math.random() * 0.5);
+                const radiusY = (rect.height / 2 - 60) * (0.5 + Math.random() * 0.5);
+                const x = rect.width / 2 + Math.cos(angle) * radiusX - 10;
+                const y = rect.height / 2 + Math.sin(angle) * radiusY - 10;
+
+                state.pathDots.push({ x, y });
+            }
+
+            // Draw lines between dots
+            for (let i = 0; i < numDots - 1; i++) {
+                drawPathLine(state.pathDots[i], state.pathDots[i + 1], i);
+            }
+
+            // Draw dots
+            state.pathDots.forEach((pos, i) => {
+                const dot = document.createElement('div');
+                dot.className = 'path-dot';
+                dot.id = `pathDot${i}`;
+                dot.style.left = (pos.x - 10) + 'px';
+                dot.style.top = (pos.y - 10) + 'px';
+                dot.innerHTML = `<span class="dot-number">${i + 1}</span>`;
+
+                if (i === 0) dot.classList.add('active');
+
+                dot.addEventListener('mousedown', () => onPathDotClick(i));
+                gameArea.appendChild(dot);
+            });
+
+            updateProgress(0, numDots);
+        }
+
+        function drawPathLine(p1, p2, index) {
+            const line = document.createElement('div');
+            line.className = 'path-line';
+            line.id = `pathLine${index}`;
+
+            const dx = p2.x - p1.x;
+            const dy = p2.y - p1.y;
+            const length = Math.sqrt(dx * dx + dy * dy);
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+            line.style.width = length + 'px';
+            line.style.left = p1.x + 'px';
+            line.style.top = p1.y + 'px';
+            line.style.transform = `rotate(${angle}deg)`;
+
+            gameArea.appendChild(line);
+        }
+
+        function onPathDotClick(index) {
+            if (!state.running || index !== state.currentPathDot) return;
+
+            const reaction = Date.now() - state.lastTargetTime;
+            state.reactionTimes.push(reaction);
+
+            const dot = document.getElementById(`pathDot${index}`);
+            dot.classList.remove('active');
+            dot.classList.add('completed');
+
+            // Complete line
+            if (index > 0) {
+                const line = document.getElementById(`pathLine${index - 1}`);
+                if (line) line.classList.add('completed');
+            }
+
+            state.hits++;
+            state.totalClicks++;
+            state.streak++;
+            if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+
+            let points = Math.max(10, 150 - Math.floor(reaction / 10));
+            state.score += points;
+
+            addHitMarker(state.pathDots[index].x, state.pathDots[index].y, '+' + points, true);
+
+            state.currentPathDot++;
+            state.currentTarget = state.currentPathDot;
+            state.lastTargetTime = Date.now();
+
+            updateProgress(state.currentPathDot, state.pathDots.length);
+            updateUI();
+
+            if (state.currentPathDot < state.pathDots.length) {
+                const nextDot = document.getElementById(`pathDot${state.currentPathDot}`);
+                nextDot.classList.add('active');
+            } else {
+                setTimeout(() => endGame(), 500);
+            }
+        }
+
+        // ==================== DRAG & DROP ====================
+
+        function startDragDrop() {
+            const colors = [
+                { bg: '#ff4757', label: 'Red', emoji: '🔴' },
+                { bg: '#2ecc71', label: 'Green', emoji: '🟢' },
+                { bg: '#3498db', label: 'Blue', emoji: '🔵' },
+                { bg: '#f39c12', label: 'Yellow', emoji: '🟡' },
+                { bg: '#9b59b6', label: 'Purple', emoji: '🟣' },
+                { bg: '#e67e22', label: 'Orange', emoji: '🟠' },
+            ];
+
+            const rect = gameArea.getBoundingClientRect();
+            const count = Math.min(difficultySettings[state.difficulty].targets, 6);
+            state.dragCompleted = 0;
+            state.roundTargets = count;
+
+            const selected = colors.slice(0, count);
+
+            // Create drop zones on the right side
+            selected.forEach((color, i) => {
+                const zone = document.createElement('div');
+                zone.className = 'drop-zone';
+                zone.id = `dropZone${i}`;
+                zone.dataset.color = color.label;
+                zone.style.right = '30px';
+                zone.style.top = (30 + i * 100) + 'px';
+                zone.textContent = color.label;
+                zone.style.color = color.bg;
+                zone.style.borderColor = color.bg + '44';
+                gameArea.appendChild(zone);
+            });
+
+            // Create drag items on the left side (shuffled positions)
+            const shuffled = [...selected].sort(() => Math.random() - 0.5);
+            shuffled.forEach((color, i) => {
+                const item = document.createElement('div');
+                item.className = 'drag-item';
+                item.id = `dragItem${i}`;
+                item.dataset.color = color.label;
+                item.style.background = color.bg;
+                item.style.left = (30 + Math.random() * 100) + 'px';
+                item.style.top = (30 + i * 80) + 'px';
+                item.textContent = color.emoji;
+
+                makeDraggable(item);
+                gameArea.appendChild(item);
+            });
+
+            updateProgress(0, count);
+        }
+
+        function makeDraggable(el) {
+            let offsetX, offsetY, startX, startY;
+
+            el.addEventListener('mousedown', (e) => {
+                if (!state.running) return;
+                e.preventDefault();
+
+                const rect = gameArea.getBoundingClientRect();
+                offsetX = e.clientX - rect.left - el.offsetLeft;
+                offsetY = e.clientY - rect.top - el.offsetTop;
+                startX = el.offsetLeft;
+                startY = el.offsetTop;
+
+                el.classList.add('dragging');
+                state.lastTargetTime = Date.now();
+
+                function onMove(e) {
+                    const r = gameArea.getBoundingClientRect();
+                    let x = e.clientX - r.left - offsetX;
+                    let y = e.clientY - r.top - offsetY;
+
+                    x = Math.max(0, Math.min(x, r.width - 60));
+                    y = Math.max(0, Math.min(y, r.height - 60));
+
+                    el.style.left = x + 'px';
+                    el.style.top = y + 'px';
+
+                    // Check hover on drop zones
+                    document.querySelectorAll('.drop-zone').forEach(zone => {
+                        const zr = zone.getBoundingClientRect();
+                        const er = el.getBoundingClientRect();
+                        const overlaps = !(er.right < zr.left || er.left > zr.right ||
+                                          er.bottom < zr.top || er.top > zr.bottom);
+                        zone.classList.toggle('hover', overlaps);
+                    });
+                }
+
+                function onUp(e) {
+                    el.classList.remove('dragging');
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onUp);
+
+                    // Check drop
+                    let dropped = false;
+                    document.querySelectorAll('.drop-zone').forEach(zone => {
+                        zone.classList.remove('hover');
+                        const zr = zone.getBoundingClientRect();
+                        const er = el.getBoundingClientRect();
+                        const overlaps = !(er.right < zr.left || er.left > zr.right ||
+                                          er.bottom < zr.top || er.top > zr.bottom);
+
+                        if (overlaps && zone.dataset.color === el.dataset.color && !zone.classList.contains('filled')) {
+                            // Correct drop
+                            zone.classList.add('filled');
+                            el.style.left = (zone.offsetLeft + 10) + 'px';
+                            el.style.top = (zone.offsetTop + 10) + 'px';
+                            el.style.pointerEvents = 'none';
+                            el.style.opacity = '0.7';
+                            dropped = true;
+
+                            const reaction = Date.now() - state.lastTargetTime;
+                            state.reactionTimes.push(reaction);
+
+                            state.hits++;
+                            state.totalClicks++;
+                            state.streak++;
+                            if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+
+                            let points = Math.max(10, 200 - Math.floor(reaction / 20));
+                            state.score += points;
+                            state.dragCompleted++;
+
+                            addHitMarker(zone.offsetLeft + 40, zone.offsetTop + 40, '+' + points, true);
+                            updateProgress(state.dragCompleted, state.roundTargets);
+                            updateUI();
+
+                            if (state.dragCompleted >= state.roundTargets) {
+                                setTimeout(() => endGame(), 500);
+                            }
+                        }
+                    });
+
+                    if (!dropped) {
+                        // Snap back
+                        el.style.left = startX + 'px';
+                        el.style.top = startY + 'px';
+                    }
+                }
+
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('mouseup', onUp);
+            });
+        }
+
+        // ==================== DOUBLE CLICK ====================
+
+        function startDoubleClick() {
+            state.currentTarget = 0;
+            gameArea.addEventListener('mousedown', onClickMiss);
+            spawnDoubleClickTarget();
+            updateProgress(0, state.roundTargets);
+        }
+
+        function spawnDoubleClickTarget() {
+            if (!state.running || state.currentTarget >= state.roundTargets) {
+                if (state.running) endGame();
+                return;
+            }
+
+            const settings = difficultySettings[state.difficulty];
+            const size = settings.targetSize + 20;
+            const pos = randomPos(size);
+
+            const emojis = ['🎈', '💎', '⭐', '🎪', '🎨', '🎲', '🎭', '🎪', '🌟', '💫'];
+            const colors = ['#ff4757', '#2ecc71', '#3498db', '#f39c12', '#9b59b6', '#e67e22'];
+
+            const target = document.createElement('div');
+            target.className = 'dbl-target';
+            target.style.width = size + 'px';
+            target.style.height = size + 'px';
+            target.style.left = pos.x + 'px';
+            target.style.top = pos.y + 'px';
+            target.style.background = `radial-gradient(circle, ${colors[Math.floor(Math.random() * colors.length)]}, ${colors[Math.floor(Math.random() * colors.length)]})`;
+            target.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+
+            // Disappear after time
+            const disappearTime = Math.max(1000, 3000 - (state.difficulty === 'insane' ? 2000 : state.difficulty === 'hard' ? 1500 : state.difficulty === 'medium' ? 1000 : 0));
+
+            let singleClicked = false;
+
+            target.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+                if (!singleClicked) {
+                    singleClicked = true;
+                    target.classList.add('single-clicked');
+                }
+            });
+
+            target.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+                if (!state.running) return;
+
+                const reaction = Date.now() - state.lastTargetTime;
+                state.reactionTimes.push(reaction);
+
+                state.totalClicks++;
+                state.hits++;
+                state.streak++;
+                if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+
+                let points = Math.max(10, 120 - Math.floor(reaction / 15));
+                state.score += points;
+
+                const rect = gameArea.getBoundingClientRect();
+                addClickEffect(e.clientX - rect.left, e.clientY - rect.top, true);
+                addHitMarker(e.clientX - rect.left, e.clientY - rect.top, '+' + points, true);
+
+                target.remove();
+                state.currentTarget++;
+                updateProgress(state.currentTarget, state.roundTargets);
+                updateUI();
+
+                clearTimeout(target.disappearTimeout);
+                setTimeout(spawnDoubleClickTarget, 300);
+            });
+
+            target.disappearTimeout = setTimeout(() => {
+                if (target.parentNode && state.running) {
+                    target.remove();
+                    state.totalClicks++;
+                    state.misses++;
+                    state.streak = 0;
+                    addHitMarker(pos.x + size/2, pos.y + size/2, 'TIMEOUT', false);
+                    state.currentTarget++;
+                    updateProgress(state.currentTarget, state.roundTargets);
+                    updateUI();
+                    spawnDoubleClickTarget();
+                }
+            }, disappearTime);
+
+            gameArea.appendChild(target);
+            state.lastTargetTime = Date.now();
+        }
+
+        // ==================== RIGHT CLICK ====================
+
+        function startRightClick() {
+            state.currentTarget = 0;
+            gameArea.oncontextmenu = (e) => e.preventDefault();
+            document.addEventListener('click', hideContextMenu);
+            spawnRightClickTarget();
+            updateProgress(0, state.roundTargets);
+        }
+
+        function spawnRightClickTarget() {
+            if (!state.running || state.currentTarget >= state.roundTargets) {
+                if (state.running) endGame();
+                return;
+            }
+
+            const items = [
+                { emoji: '📁', label: 'Folder', action: 'delete' },
+                { emoji: '🎨', label: 'Palette', action: 'color' },
+                { emoji: '📄', label: 'Document', action: 'copy' },
+                { emoji: '🖼️', label: 'Image', action: 'resize' },
+                { emoji: '🗑️', label: 'Trash', action: 'delete' },
+                { emoji: '✏️', label: 'Editor', action: 'color' },
+            ];
+
+            const item = items[Math.floor(Math.random() * items.length)];
+            const pos = randomPos(80);
+
+            const target = document.createElement('div');
+            target.className = 'context-target';
+            target.style.left = pos.x + 'px';
+            target.style.top = pos.y + 'px';
+            target.style.background = 'rgba(255,255,255,0.05)';
+            target.style.border = '2px solid #3a3a6e';
+            target.style.borderRadius = '12px';
+            target.id = 'currentRightTarget';
+
+            target.innerHTML = `<span class="emoji">${item.emoji}</span><span>${item.label}</span>`;
+
+            state.correctAction = item.action;
+            state.rightClickTarget = target;
+
+            target.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                showContextMenu(e);
+            });
+
+            gameArea.appendChild(target);
+
+            // Show instruction
+            const instruction = document.createElement('div');
+            instruction.style.cssText = 'position:absolute;top:15px;left:50%;transform:translateX(-50%);color:#00d4ff;font-size:1rem;z-index:10;text-align:center;';
+            instruction.id = 'rightClickInstruction';
+            const actionLabels = { delete: '🗑️ Delete', color: '🎨 Change Color', copy: '📋 Copy', resize: '📐 Resize' };
+            instruction.innerHTML = `Right-click and choose: <strong>${actionLabels[item.action]}</strong>`;
+            gameArea.appendChild(instruction);
+
+            state.lastTargetTime = Date.now();
+        }
+
+        function showContextMenu(e) {
+            const rect = gameArea.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            let y = e.clientY - rect.top;
+
+            // Adjust if too close to edge
+            if (x + 160 > rect.width) x = rect.width - 170;
+            if (y + 160 > rect.height) y = rect.height - 170;
+
+            contextMenu.style.left = (rect.left + x) + 'px';
+            contextMenu.style.top = (rect.top + y) + 'px';
+            contextMenu.style.display = 'block';
+
+            // Highlight correct option
+            contextMenu.querySelectorAll('.context-menu-item').forEach(item => {
+                item.classList.remove('correct');
+            });
+        }
+
+        function hideContextMenu() {
+            contextMenu.style.display = 'none';
+        }
+
+        function contextAction(action) {
+            hideContextMenu();
+            if (!state.running) return;
+
+            const reaction = Date.now() - state.lastTargetTime;
+            state.reactionTimes.push(reaction);
+            state.totalClicks++;
+
+            const target = document.getElementById('currentRightTarget');
+            const instruction = document.getElementById('rightClickInstruction');
+
+            if (action === state.correctAction) {
+                state.hits++;
+                state.streak++;
+                if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+
+                let points = Math.max(10, 150 - Math.floor(reaction / 15));
+                state.score += points;
+
+                if (target) {
+                    addHitMarker(target.offsetLeft + 40, target.offsetTop + 40, '+' + points, true);
+                    target.remove();
+                }
+            } else {
+                state.misses++;
+                state.streak = 0;
+
+                if (target) {
+                    addHitMarker(target.offsetLeft + 40, target.offsetTop + 40, 'WRONG', false);
+                    target.remove();
+                }
+            }
+
+            if (instruction) instruction.remove();
+
+            state.currentTarget++;
+            updateProgress(state.currentTarget, state.roundTargets);
+            updateUI();
+
+            setTimeout(spawnRightClickTarget, 500);
+        }
+
+        // ==================== SPEED TEST ====================
+
+        function startSpeedTest() {
+            state.speedTargets = 0;
+            gameArea.addEventListener('mousedown', onSpeedMiss);
+
+            // Spawn multiple targets
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => spawnSpeedTarget(), i * 200);
+            }
+        }
+
+        function onSpeedMiss(e) {
+            if (e.target === gameArea || e.target.classList.contains('grid-overlay')) {
+                state.totalClicks++;
+                state.misses++;
+                state.streak = 0;
+                const rect = gameArea.getBoundingClientRect();
+                addClickEffect(e.clientX - rect.left, e.clientY - rect.top, false);
+                updateUI();
+            }
+        }
+
+        function spawnSpeedTarget() {
+            if (!state.running) return;
+
+            const settings = difficultySettings[state.difficulty];
+            const size = settings.targetSize;
+            const pos = randomPos(size);
+            const colors = ['#ff4757', '#2ecc71', '#3498db', '#f39c12', '#9b59b6', '#e67e22', '#1abc9c', '#e74c3c'];
+
+            const target = document.createElement('div');
+            target.className = 'target';
+            target.style.width = size + 'px';
+            target.style.height = size + 'px';
+            target.style.left = pos.x + 'px';
+            target.style.top = pos.y + 'px';
+            target.style.borderRadius = '50%';
+            target.style.background = `radial-gradient(circle, ${colors[Math.floor(Math.random() * colors.length)]}, ${colors[Math.floor(Math.random() * colors.length)]})`;
+            target.style.boxShadow = `0 0 15px ${colors[Math.floor(Math.random() * colors.length)]}44`;
+
+            const spawnTime = Date.now();
+
+            target.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+                if (!state.running) return;
+
+                const reaction = Date.now() - spawnTime;
+                state.reactionTimes.push(reaction);
+
+                state.totalClicks++;
+                state.hits++;
+                state.streak++;
+                state.speedTargets++;
+                if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+
+                let points = Math.max(5, 80 - Math.floor(reaction / 15));
+                points += state.streak * 3;
+                state.score += points;
+
+                const rect = gameArea.getBoundingClientRect();
+                addClickEffect(e.clientX - rect.left, e.clientY - rect.top, true);
+                addHitMarker(e.clientX - rect.left, e.clientY - rect.top, '+' + points, true);
+
+                target.remove();
+                updateUI();
+
+                // Spawn new target quickly
+                setTimeout(spawnSpeedTarget, 50);
+            });
+
+            // Auto-remove after timeout
+            setTimeout(() => {
+                if (target.parentNode && state.running) {
+                    target.remove();
+                    spawnSpeedTarget();
+                }
+            }, Math.max(1500, 3500 - (settings.speed * 200)));
+
+            gameArea.appendChild(target);
+        }
+
+        // ==================== PRECISION DRAWING ====================
+
+        function startPrecision() {
+            const canvas = document.createElement('canvas');
+            canvas.className = 'drawing-canvas';
+            canvas.id = 'precisionCanvas';
+
+            const rect = gameArea.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+
+            gameArea.appendChild(canvas);
+            state.precisionCanvas = canvas;
+            state.precisionCtx = canvas.getContext('2d');
+
+            const ctx = state.precisionCtx;
+
+            // Draw the target path
+            const path = generatePrecisionPath(canvas.width, canvas.height);
+
+            // Draw target path
+            ctx.strokeStyle = 'rgba(123,47,247,0.4)';
+            ctx.lineWidth = 20;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(path[0].x, path[0].y);
+            for (let i = 1; i < path.length; i++) {
+                ctx.lineTo(path[i].x, path[i].y);
+            }
+            ctx.stroke();
+
+            // Draw guide line
+            ctx.strokeStyle = 'rgba(0,212,255,0.6)';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([5, 10]);
+            ctx.beginPath();
+            ctx.moveTo(path[0].x, path[0].y);
+            for (let i = 1; i < path.length; i++) {
+                ctx.lineTo(path[i].x, path[i].y);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Start dot
+            ctx.fillStyle = '#2ecc71';
+            ctx.beginPath();
+            ctx.arc(path[0].x, path[0].y, 10, 0, Math.PI * 2);
+            ctx.fill();
+
+            // End dot
+            ctx.fillStyle = '#ff4757';
+            ctx.beginPath();
+            ctx.arc(path[path.length-1].x, path[path.length-1].y, 10, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Label
+            ctx.fillStyle = '#fff';
+            ctx.font = '14px sans-serif';
+            ctx.fillText('START', path[0].x - 20, path[0].y - 15);
+            ctx.fillText('END', path[path.length-1].x - 10, path[path.length-1].y - 15);
+
+            // Drawing state
+            let drawing = false;
+            let userPoints = [];
+            let totalDist = 0;
+            let sampleCount = 0;
+
+            canvas.addEventListener('mousedown', (e) => {
+                if (!state.running) return;
+                drawing = true;
+                const r = canvas.getBoundingClientRect();
+                const x = e.clientX - r.left;
+                const y = e.clientY - r.top;
+                userPoints = [{ x, y }];
+
+                ctx.strokeStyle = '#00d4ff';
+                ctx.lineWidth = 3;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (!drawing || !state.running) return;
+                const r = canvas.getBoundingClientRect();
+                const x = e.clientX - r.left;
+                const y = e.clientY - r.top;
+
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+
+                userPoints.push({ x, y });
+
+                // Calculate distance from path
+                let minDist = Infinity;
+                for (const p of path) {
+                    const d = Math.sqrt((x - p.x) ** 2 + (y - p.y) ** 2);
+                    if (d < minDist) minDist = d;
+                }
+                totalDist += minDist;
+                sampleCount++;
+            });
+
+            canvas.addEventListener('mouseup', () => {
+                if (!drawing) return;
+                drawing = false;
+
+                if (sampleCount > 0) {
+                    const avgDist = totalDist / sampleCount;
+                    const maxDist = 20;
+                    const accuracy = Math.max(0, Math.min(100, 100 - (avgDist / maxDist) * 100));
+
+                    state.score = Math.round(accuracy * 10);
+                    state.hits = Math.round(accuracy);
+                    state.totalClicks = 100;
+                    state.precisionScore = Math.round(accuracy);
+
+                    updateUI();
+                }
+            });
+
+            // Store path for reference
+            state.precisionPath = path;
+        }
+
+        function generatePrecisionPath(w, h) {
+            const points = [];
+            const numPoints = 8;
+            const padding = 60;
+
+            for (let i = 0; i < numPoints; i++) {
+                points.push({
+                    x: padding + (i / (numPoints - 1)) * (w - padding * 2),
+                    y: padding + Math.sin(i * 0.8) * (h / 3) + h / 3 + (Math.random() - 0.5) * 80,
+                });
+            }
+
+            // Interpolate for smoother path
+            const smooth = [];
+            for (let i = 0; i < points.length - 1; i++) {
+                const steps = 20;
+                for (let j = 0; j <= steps; j++) {
+                    const t = j / steps;
+                    smooth.push({
+                        x: points[i].x + (points[i+1].x - points[i].x) * t,
+                        y: points[i].y + (points[i+1].y - points[i].y) * t,
+                    });
+                }
+            }
+
+            return smooth;
+        }
+
+        // ==================== INIT ====================
+
+        // Close context menu on click outside
+        document.addEventListener('click', () => {
+            hideContextMenu();
+        });
+
+        // Prevent default context menu in game area
+        gameArea.addEventListener('contextmenu', (e) => {
+            if (state.mode === 'rightclick') {
+                e.preventDefault();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (state.running) resetGame();
+                else startGame();
+            }
+        });
+
+        // Initial setup
+        switchMode('click');
+    </script>
+</body>
+</html>
